@@ -14,13 +14,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SetStateAction, Dispatch, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { CreateIndividualProfileSchema } from "./IndividualOnboardingFormSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SelectComponent from "@/components/SelectComponent";
-import { Heirarchy } from "@/types/general";
+import { Gender, Heirarchy } from "@/types/general";
 import {
+  genderSelectComponentPayload,
   leaderShipLevelSelectComponentPayload,
   lifeClassTopicsSelectComponentPayload,
 } from "@/utils";
@@ -28,9 +30,10 @@ import {
 interface IndividualOnboardingFormProps {
   isMutatingDbResourceHandler: Dispatch<SetStateAction<boolean>>;
   isMutatingDbResource: boolean;
-  updateIndividualDataHandler: Dispatch<
-    SetStateAction<z.infer<typeof CreateIndividualProfileSchema> | null>
-  >;
+  updateIndividualDataHandler: (
+    data: z.infer<typeof CreateIndividualProfileSchema>,
+    queryParams?: { token?: string | null; redirect?: string | null }
+  ) => void;
 }
 
 export function IndividualOnboardingForm({
@@ -38,6 +41,23 @@ export function IndividualOnboardingForm({
   isMutatingDbResourceHandler,
   updateIndividualDataHandler,
 }: IndividualOnboardingFormProps) {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const redirect = searchParams.get("redirect");
+
+  console.log("URL Parameters in form component:");
+  console.log("token from URL: ", token);
+  console.log("redirect from URL: ", redirect);
+
+  // Log the full search params for debugging
+  console.log(
+    "All search params:",
+    Array.from(searchParams.entries()).reduce((obj, [key, value]) => {
+      obj[key] = value;
+      return obj;
+    }, {} as Record<string, string>)
+  );
+
   const form = useForm<z.infer<typeof CreateIndividualProfileSchema>>({
     resolver: zodResolver(CreateIndividualProfileSchema),
     defaultValues: {
@@ -49,24 +69,30 @@ export function IndividualOnboardingForm({
     Heirarchy.MEMBER
   );
 
+  const [gender, setGender] = useState<string>(Gender.FEMALE);
+
   const [lifeclass_topic, setLifeClassTopic] = useState<string>("1");
 
   const onSubmit = async (data: any) => {
     console.log(
-      "here are the values of indinvidualProfile onboarding form ",
+      "here are the values of individualProfile onboarding form: ",
       data
     );
-    updateIndividualDataHandler({
-      //  the fields that have a "none" value will be updated later when the profile is updated
-      ...data,
-      leadership_level: leadershipLevel,
-      lifeclass_topic: Number(lifeclass_topic),
-      lifeclass_teacher_profile_id: "none",
-      mentor_profile_id: "none",
-      installation_id: "none",
-      departments: ["none"],
-      centrals: ["none"],
-    });
+    updateIndividualDataHandler(
+      {
+        //  the fields that have a "none" value will be updated later when the profile is updated
+        ...data,
+        leadership_level: leadershipLevel,
+        gender: gender,
+        lifeclass_topic: Number(lifeclass_topic),
+        lifeclass_teacher_profile_id: "none",
+        mentor_profile_id: "none",
+        installation_id: "none",
+        departments: ["none"],
+        centrals: ["none"],
+      },
+      { token, redirect } // Pass token and redirect as query params if they exist
+    );
     isMutatingDbResourceHandler(true);
   };
 
@@ -140,6 +166,18 @@ export function IndividualOnboardingForm({
               );
             }}
           />
+
+          {/* select gender */}
+          <div className="my-4">
+            <div className="text-sm">Gender</div>
+            <SelectComponent
+              placeholder={"Select gender"}
+              label="Gender"
+              onValueChange={setGender}
+              itemsToSelect={genderSelectComponentPayload}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="giving_number"
@@ -178,10 +216,8 @@ export function IndividualOnboardingForm({
               label="Life class topics"
               onValueChange={setLifeClassTopic}
               itemsToSelect={lifeClassTopicsSelectComponentPayload}
-              
             />
           </div>
-
 
           <FormField
             control={form.control}
@@ -215,7 +251,7 @@ export function IndividualOnboardingForm({
                       onChange={(event) => {
                         const file = event.target.files?.[0]; // get first file
                         onChange(file);
-                        console.log(value)
+                        console.log(value);
                       }}
                     />
                   </FormControl>
@@ -241,8 +277,7 @@ export function IndividualOnboardingForm({
                       onChange={(event) => {
                         const file = event.target.files?.[0]; // get first file
                         onChange(file);
-                        console.log(value)
-
+                        console.log(value);
                       }}
                     />
                   </FormControl>

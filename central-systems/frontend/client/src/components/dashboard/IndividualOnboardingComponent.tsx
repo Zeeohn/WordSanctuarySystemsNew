@@ -21,16 +21,22 @@ export default function OnboardIndividualComponent({
 
   // const [passport_upload_url, setPassportUploadUrl] = useState<string>("");
 
-  const [formDetails, setFormDetails] = useState<z.infer<
-    typeof CreateIndividualProfileSchema
-  > | null>(null);
+  const [formDetails, setFormDetails] = useState<
+    | (z.infer<typeof CreateIndividualProfileSchema> & {
+        queryParams?: {
+          token?: string | null;
+          redirect?: string | null;
+        };
+      })
+    | null
+  >(null);
 
   useEffect(() => {
     if (formDetails) {
       const saveIndividualProfile = async () => {
         // create a new form
         const passportFormData = new FormData();
-        const { passport, signature, name, surname } = formDetails;
+        const { passport, signature, name, surname, gender } = formDetails;
 
         // append image details to form data
         passportFormData.append("file", passport);
@@ -73,7 +79,7 @@ export default function OnboardIndividualComponent({
         let cloudinary_signature_url = "";
 
         // call the api end point to upload passport
-         await fetch("/api/cloudinary/upload", {
+        await fetch("/api/cloudinary/upload", {
           method: "POST",
           body: passportFormData,
         })
@@ -127,7 +133,7 @@ export default function OnboardIndividualComponent({
           });
 
         // call the api end point to upload passport
-       await fetch("/api/cloudinary/upload", {
+        await fetch("/api/cloudinary/upload", {
           method: "POST",
           body: sigatureFormData,
         })
@@ -141,7 +147,7 @@ export default function OnboardIndividualComponent({
             );
 
             if (uploadToCoudinaryRes && uploadToCoudinaryRes?.secureUrl) {
-              // alert user that upload to cloudinary suceeded for signature
+              // alert user that upload to cloudinary succeeded for signature
               toast({
                 title: "Upload success",
                 description: (
@@ -191,22 +197,51 @@ export default function OnboardIndividualComponent({
             ...formDetails,
             passport: cloudinary_passport_url,
             signature: cloudinary_signature_url,
+            // Make sure to preserve the queryParams
+            queryParams: formDetails.queryParams,
           };
 
-          console.log(formDetails, newFormDetails);
+          console.log("Form details before modification:", formDetails);
+          console.log("Form details after modification:", newFormDetails);
 
-           await fetch(
-            `${central_systems_base_api}/api/profiles/individuals/create`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                ...newFormDetails,
-              }),
-            }
-          )
+          console.log(
+            "Token from URL params:",
+            newFormDetails.queryParams?.token
+          );
+          console.log(
+            "Redirect from URL params:",
+            newFormDetails.queryParams?.redirect
+          );
+
+          const url = `${central_systems_base_api}/api/profiles/individuals/create${
+            newFormDetails.queryParams?.token
+              ? `?token=${encodeURIComponent(
+                  newFormDetails.queryParams.token
+                )}${
+                  newFormDetails.queryParams.redirect
+                    ? `&redirect=${encodeURIComponent(
+                        newFormDetails.queryParams.redirect
+                      )}`
+                    : ""
+                }`
+              : ""
+          }`;
+
+          console.log("Created API URL:", url);
+          console.log("URL params used:", {
+            token: newFormDetails.queryParams?.token || "missing",
+            redirect: newFormDetails.queryParams?.redirect || "missing",
+          });
+
+          await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...newFormDetails,
+            }),
+          })
             .then(async (response) => {
               // get the response of the upload
               createProfileResponse = await response.json();
@@ -215,9 +250,9 @@ export default function OnboardIndividualComponent({
                 "reponse from database create individual profile",
                 createProfileResponse
               );
-               
+
               if (createProfileResponse?.success) {
-                // alert user that upload to cloudinary suceeded for passport
+                // alert user that profile was created successfully
                 toast({
                   title: "Create Profile Success",
                   description: (
@@ -230,10 +265,74 @@ export default function OnboardIndividualComponent({
                   ),
                 });
 
+                // Handle redirect if token and redirect URL exist
+                if (
+                  newFormDetails.queryParams?.token &&
+                  newFormDetails.queryParams?.redirect
+                ) {
+                  console.log("Preparing redirect with:");
+                  console.log("- Token:", newFormDetails.queryParams.token);
+                  console.log(
+                    "- Redirect URL:",
+                    newFormDetails.queryParams.redirect
+                  );
+
+                  // Prepare profile data using the API response data
+                  const profileData = {
+                    ...createProfileResponse.data?.createdProfile,
+                    token: newFormDetails.queryParams.token,
+                  };
+
+                  // Create a form to submit data to external site
+                  const form = document.createElement("form");
+                  form.method = "POST";
+                  form.action = newFormDetails.queryParams.redirect;
+                  form.target = "_self"; // Ensure it redirects the current page
+                  form.enctype = "application/x-www-form-urlencoded";
+                  form.setAttribute("novalidate", "true");
+
+                  console.log(
+                    "Redirecting to:",
+                    newFormDetails.queryParams.redirect
+                  );
+                  console.log("Sending profile data:", profileData);
+
+                  // Add profile data as hidden fields
+                  Object.entries(profileData).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                      const input = document.createElement("input");
+                      input.type = "hidden";
+                      input.name = key;
+                      input.value =
+                        typeof value === "string"
+                          ? value
+                          : JSON.stringify(value);
+                      form.appendChild(input);
+                    }
+                  });
+
+                  // Append form to body and submit
+                  document.body.appendChild(form);
+
+                  // Add a small delay before submitting to ensure the form is fully created
+                  setTimeout(() => {
+                    console.log("Submitting form now");
+                    form.submit();
+                    toast({
+                      title: "Redirecting",
+                      description: (
+                        <div className="mt-2 w-full flex justify-center items-center rounded-md">
+                          <span>You are being redirected...</span>
+                        </div>
+                      ),
+                    });
+                  }, 100);
+                }
+
                 // store the passport url in a state
 
                 // upload the signature after that
-              }else{
+              } else {
                 toast({
                   title: "Create Profile Error",
                   description: (
@@ -286,7 +385,14 @@ export default function OnboardIndividualComponent({
         <IndividualOnboardingForm
           isMutatingDbResource={hasUserFilledForm}
           isMutatingDbResourceHandler={sethasUserFilledForm}
-          updateIndividualDataHandler={setFormDetails}
+          updateIndividualDataHandler={(formData, queryParams) => {
+            console.log("Received form data from form:", formData);
+            console.log("Received query params from form:", queryParams);
+            setFormDetails({
+              ...formData,
+              queryParams,
+            });
+          }}
         />
       </div>
     </div>

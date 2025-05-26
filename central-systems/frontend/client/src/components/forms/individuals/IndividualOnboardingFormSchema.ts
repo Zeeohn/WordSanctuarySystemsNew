@@ -1,4 +1,4 @@
-import { Heirarchy } from "@/types/general";
+import { Heirarchy, Gender } from "@/types/general";
 import * as z from "zod";
 import { zfd } from "zod-form-data";
 
@@ -17,6 +17,7 @@ export interface TCreateIndividualProfile {
   birthday: string;
   departments: string[];
   phone_contact: string;
+  gender: string;
 }
 
 export interface TIndividualProfile {
@@ -35,6 +36,7 @@ export interface TIndividualProfile {
   birthday: string;
   departments: string[];
   phone_contact: string;
+  gender: string;
 }
 
 // to validate the birthday field
@@ -48,39 +50,54 @@ export const CreateIndividualProfileSchema = z.object({
     message: "surname must be at least 3 characters",
   }),
   email: z.string().email(),
-  
+
   giving_number: z.string().min(3, {
     message: "giving_number must be at least 3 characters",
   }),
 
-  installation_id: z.string().min(4, {
-    message: "invalid installation_id field",
-  }).optional(),
+  installation_id: z
+    .string()
+    .min(4, {
+      message: "invalid installation_id field",
+    })
+    .optional(),
 
+  leadership_level: z
+    .enum([
+      Heirarchy.ASSISTANT_HOD,
+      Heirarchy.EXECUTIVE_ASSISTANT,
+      Heirarchy.HOD,
+      Heirarchy.MEMBER,
+      Heirarchy.MINISTER,
+      Heirarchy.PASTOR,
+      Heirarchy.WORKER,
+    ])
+    .optional(),
 
-  leadership_level: z.enum([
-    Heirarchy.ASSISTANT_HOD,
-    Heirarchy.EXECUTIVE_ASSISTANT,
-    Heirarchy.HOD,
-    Heirarchy.MEMBER,
-    Heirarchy.MINISTER,
-    Heirarchy.PASTOR,
-    Heirarchy.WORKER,
-  ]).optional(),
+  gender: z.enum([Gender.MALE, Gender.FEMALE]),
 
   lifeclass_topic: z.number().optional(),
 
-  lifeclass_teacher_profile_id: z.string().min(4, {
-    message: "invalid lifeclass_teacher_profile_id field",
-  }).optional(),
+  lifeclass_teacher_profile_id: z
+    .string()
+    .min(4, {
+      message: "invalid lifeclass_teacher_profile_id field",
+    })
+    .optional(),
 
-  mentor_profile_id: z.string().min(4, {
-    message: "invalid mentor_profile_id field",
-  }).optional(),
+  mentor_profile_id: z
+    .string()
+    .min(4, {
+      message: "invalid mentor_profile_id field",
+    })
+    .optional(),
 
-  departments: z.array(z.string()).min(1, {
-      message: "departments field must have at least 1 element"
-  }).optional(),
+  departments: z
+    .array(z.string())
+    .min(1, {
+      message: "departments field must have at least 1 element",
+    })
+    .optional(),
 
   passport: zfd
     .file()
@@ -95,7 +112,7 @@ export const CreateIndividualProfileSchema = z.object({
         message: "File format must be either jpg, jpeg or png",
       }
     ),
-    signature: zfd
+  signature: zfd
     .file()
     .refine((file) => file.size < 250000, {
       message: "File can't be bigger than 250kb",
@@ -152,6 +169,7 @@ export const UpdateIndividualProfileSchema = z.object({
       Heirarchy.WORKER,
     ])
     .optional(),
+  gender: z.enum([Gender.MALE, Gender.FEMALE]),
   lifeclass_topic: z.number().optional(),
   lifeclass_teacher_profile_id: z
     .string()
@@ -180,7 +198,6 @@ export const UpdateIndividualProfileSchema = z.object({
     .optional(), // uses a regex to validate the birthday field
   centrals: z.array(z.string()).optional(),
 });
-
 
 // export const CreateIndividualProfileSchema = z.object({
 //   name: z.string().min(3, {
@@ -223,7 +240,6 @@ export const UpdateIndividualProfileSchema = z.object({
 //   phone_contact: z.string(),
 //   birthday: z.string().refine((val) => birthdayRegex.test(val)), // uses a regex to validate the birthday field
 // });
-
 
 export const EmailValidatorObj = z.object({
   email: z.string().email(),

@@ -8,51 +8,201 @@ import {
 } from "../../validators/createIndividualProfileValidator";
 import { ZodError } from "zod";
 import { postgresClient } from "../../../db_connections/prismaClients";
+import { mongoDbClient } from "../../../db_connections/prismaClients";
 import { PrismaClientKnownRequestError } from "../../../../prisma/generated-clients/postgres/runtime/library";
 import { saveIndividualProfileByIdService } from "../../../services/individualProfileService";
+import jwt from "jsonwebtoken";
 
-// create the profile
-export const createIndividualProfile = async (req: Request, res: Response) => {
+interface TokenPayload {
+  id: string;
+  email: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Controller to create an individual profile, with optional token validation
+ */
+export const createIndividualProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { token, redirect } = req.query;
+
   try {
     const parsedBody = CreateIndividualProfileSchema.parse(req.body);
 
+    // Handle token validation if token is provided
+    if (token && redirect) {
+      const isTokenValid = await validateToken(token as string, res);
+
+      // If token validation failed, the response will be sent and we should exit the flow
+      if (!isTokenValid) {
+        return;
+      }
+    }
+
+    // Create profile in database
     const createdProfile = await postgresClient.profiles.create({
-      data: parsedBody,
+      data: {
+        ...parsedBody,
+        registered_from:
+          parsedBody.registered_from || token
+            ? "Central Training"
+            : "default_source",
+      },
     });
 
-    if (createdProfile) {
-      res.status(201).json({ message: "Profile created successfully" });
-
-      //  create the snapshot of the individual
-      const createdSnapshot = await saveIndividualProfileByIdService([createdProfile.profile_id])
-
-      return
-
-    } else {
-      throw new Error(`Could Not create new profile. Try again later`);
+    if (!createdProfile) {
+      throw new Error("Failed to create new profile");
     }
-    
-  } catch (err) {
-    console.log("error creating individual profile ", err);
-    if (err instanceof ZodError) {
-      res
-        .status(400)
-        .json({ message: "Invalid request body", errorMessage: err.errors });
-    } else if (err instanceof PrismaClientKnownRequestError) {
-      if (err.code === "P2002") {
-        res.status(400).json({
-          message: `The ${err.meta?.target} already exists`,
-          errorMessage: "Unique constraint failed",
-        });
-      }
-    } else {
-      res.status(500).json({
-        message: "Operation failed. Please try again later",
-        errorMessage: "Internal server error",
-      });
+
+    // Prepare response payload - include redirect if it exists
+    const responsePayload: {
+      createdProfile: typeof createdProfile;
+      redirect?: string;
+    } = {
+      createdProfile,
+    };
+
+    // Add redirect to response if it exists
+    if (redirect) {
+      responsePayload.redirect = redirect as string;
     }
+
+    // Respond before continuing with non-blocking operations
+    res.status(201).json(responsePayload);
+
+    // Create snapshot after response is sent (non-blocking operation)
+    try {
+      await saveIndividualProfileByIdService([createdProfile.profile_id]);
+    } catch (snapshotError) {
+      console.error("Failed to create profile snapshot:", snapshotError);
+    }
+  } catch (error) {
+    handleError(error, res);
   }
 };
+
+/**
+ * Validates token and updates its status in database
+ * @returns boolean indicating if validation was successful
+ */
+async function validateToken(
+  tokenString: string,
+  res: Response
+): Promise<boolean> {
+  try {
+    // Verify token
+    const decoded = jwt.verify(
+      tokenString,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
+
+    if (!decoded.id || !decoded.email) {
+      res.status(400).json({
+        message: "Invalid token format",
+        errorMessage: "Token is missing required fields",
+      });
+      return false;
+    }
+
+    // Check if token exists in database
+    const existingToken = await mongoDbClient.registrationExpiry.findUnique({
+      where: {
+        reg_id: decoded.id,
+        email: decoded.email,
+      },
+    });
+
+    if (!existingToken) {
+      res.status(400).json({
+        message: "Invalid token",
+        errorMessage: "Token does not exist",
+      });
+      return false;
+    }
+
+    // Check token expiration
+    const currentDate = new Date();
+    const expirationDate = new Date(existingToken.expiresAt);
+
+    if (currentDate > expirationDate) {
+      res.status(400).json({
+        message: "Token expired",
+        errorMessage: "Token has expired",
+      });
+      return false;
+    }
+
+    // Check if token was already accessed
+    if (existingToken.accessed) {
+      res.status(400).json({
+        message: "Token already accessed",
+        errorMessage: "Token has already been used, please request a new one",
+      });
+      return false;
+    }
+
+    // Update token as accessed
+    await mongoDbClient.registrationExpiry.update({
+      where: {
+        reg_id: decoded.id,
+      },
+      data: {
+        accessed: true,
+        accessed_at: new Date(),
+      },
+    });
+
+    // Token is valid if execution reaches here
+    return true;
+  } catch (error) {
+    if (error instanceof Error && error.name === "TokenExpiredError") {
+      res.status(400).json({
+        message: "Token expired",
+        errorMessage: "Token has expired",
+      });
+      return false;
+    }
+
+    res.status(400).json({
+      message: "Invalid identification token",
+      errorMessage: "Invalid token, kindly check and try again",
+    });
+    return false;
+  }
+}
+
+/**
+ * Centralized error handling for the controller
+ */
+function handleError(error: unknown, res: Response): void {
+  console.error("Error creating individual profile:", error);
+
+  if (error instanceof ZodError) {
+    res.status(400).json({
+      message: "Invalid request body",
+      errorMessage: error.errors,
+    });
+    return;
+  }
+
+  if (error instanceof PrismaClientKnownRequestError) {
+    if (error.code === "P2002") {
+      res.status(400).json({
+        message: `The ${error.meta?.target} already exists`,
+        errorMessage: "Unique constraint failed",
+      });
+      return;
+    }
+  }
+
+  // Generic error handling
+  res.status(500).json({
+    message: "Operation failed. Please try again later",
+    errorMessage: "Internal server error",
+  });
+}
 
 // get the individual profile by id
 export const getIndividualProfileById = async (req: Request, res: Response) => {
@@ -190,6 +340,46 @@ export const getAllIndividualProfiles = async (req: Request, res: Response) => {
   }
 };
 
+//Search for individual profiles by name or surname
+export const searchProfilesByName = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { q } = req.query;
+
+    // Return all profiles if no search query is provided
+    if (!q || typeof q !== "string" || q.trim() === "") {
+      const result = await postgresClient.profiles.findMany({
+        take: 20, // Limit results to avoid returning too many profiles
+      });
+      res.status(200).json({ profiles: result });
+      return;
+    }
+
+    const searchTerm = q.trim();
+
+    // Find profiles where name or surname contains the search term
+    const matchingProfiles = await postgresClient.profiles.findMany({
+      where: {
+        OR: [
+          { name: { contains: searchTerm, mode: "insensitive" } },
+          { surname: { contains: searchTerm, mode: "insensitive" } },
+        ],
+      },
+      orderBy: [{ name: "asc" }, { surname: "asc" }],
+    });
+
+    res.status(200).json({ profiles: matchingProfiles });
+  } catch (err) {
+    console.error("Error searching profiles by name:", err);
+    res.status(500).json({
+      message: "Could not search for profiles",
+      errorMessage: "Internal Server Error",
+    });
+  }
+};
+
 export const updateIndividualProfileById = async (
   req: Request,
   res: Response
@@ -206,7 +396,7 @@ export const updateIndividualProfileById = async (
 
     if (!existingProfile) {
       res.status(400).json({ message: "Profile does not exist" });
-      return
+      return;
     }
 
     const updatedProfile = await postgresClient.profiles.update({
@@ -223,10 +413,11 @@ export const updateIndividualProfileById = async (
       res.status(201).json({ message: "Updated profile successfully" });
 
       //  create the snapshot of the individual
-      const saveIndividualSnapshot = await saveIndividualProfileByIdService([updatedProfile.profile_id])
+      const saveIndividualSnapshot = await saveIndividualProfileByIdService([
+        updatedProfile.profile_id,
+      ]);
 
-      return
-
+      return;
     } else {
       throw new Error(`Could not update profile with id ${profile_id}`);
     }
@@ -267,11 +458,9 @@ export const deleteIndividualProfileById = async (
     });
 
     if (!(isInDb?.profile_id === parsedBody.profile_id)) {
-      res
-        .status(404)
-        .json({
-          message: `Profile with id ${parsedBody.profile_id} does not exist`,
-        });
+      res.status(404).json({
+        message: `Profile with id ${parsedBody.profile_id} does not exist`,
+      });
     } else {
       const result = await postgresClient.profiles.delete({
         where: {

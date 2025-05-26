@@ -1,102 +1,95 @@
 generator client_postgres {
-    provider = "prisma-client-js"
-    binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
-    output   = "./generated-clients/postgres"
+  provider      = "prisma-client-js"
+  output        = "./generated-clients/postgres"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
 }
 
 datasource postgresql {
-    provider = "postgresql"
-    url      = env("POSTGRES_CONN_URI")
+  provider = "postgresql"
+  url      = env("POSTGRES_CONN_URI")
 }
 
-// test model for testing db connection
 model UserPostgres {
-    id    Int    @id @default(autoincrement())
-    name  String
-    email String @unique
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
 }
-
-enum LeaderShipLevel {
-    PASTOR
-    MINISTER
-    HOD
-    ASSISTANT_HOD
-    EXECUTIVE_ASSISTANT
-    WORKER
-    MEMBER
-}
-
-// when updated, the same enum should be updated in the mongodb database
 
 model Profiles {
-    profile_id                   String          @id @default(cuid()) // generate a collision resistant Id useful in distributed systems
-    name                         String
-    surname                      String
-    email                        String          @unique
-    giving_number                String          @unique
-    leadership_level             LeaderShipLevel
-    lifeclass_topic              Int
-    lifeclass_teacher_profile_id String
-    mentor_profile_id            String
-    signature                    String // optional field for now due to testing purpose. should be made mandatory in production
-    passport                     String // optional field for now due to testing purpose. should be made mandatory in production
-    birthday                     String // the person's birthday in the format "dd/mm"
-    createdAt                    DateTime        @default(now()) // automatically set to the current date/time when the document is created
-    modifiedAt                   DateTime        @updatedAt
-    phone_contact                String         
-
-    // Relationships
-    installation_id String
-    departments     String[] // where each item in the array is the departmentalId of the department this profile or individual is associated with
-    centrals        String[] // where each item in the array is the centralId of the cetrals this profile or individual is associated with
-
-    // accounts associated with the profile
-    // accounts String[] //an array of account ids associated with the profile e.g kpi account id, general account id, worker account id
+  profile_id                   String          @id @default(cuid())
+  name                         String
+  surname                      String
+  email                        String          @unique
+  gender                       Gender 
+  giving_number                String          @unique
+  leadership_level             LeaderShipLevel
+  lifeclass_topic              Int
+  lifeclass_teacher_profile_id String
+  mentor_profile_id            String
+  signature                    String
+  passport                     String
+  birthday                     String
+  createdAt                    DateTime        @default(now())
+  modifiedAt                   DateTime        @updatedAt
+  phone_contact                String
+  installation_id              String
+  departments                  String[]
+  centrals                     String[]
+  registered_from              String?
 }
 
 model Installations {
-    installation_id String   @id @default(cuid())
-    name            String   @unique
-    members         Json // array of each member in the department corresponding to the InstallationMemberRole type definition
-    finance_id      String   @unique
-    createdAt       DateTime @default(now()) // automatically set to the current date/time when the
-    modifiedAt      DateTime @updatedAt
+  installation_id String   @id @default(cuid())
+  name            String   @unique
+  members         Json
+  finance_id      String   @unique
+  createdAt       DateTime @default(now())
+  modifiedAt      DateTime @updatedAt
 }
 
 model Departments {
-    department_id            String   @id @default(cuid())
-    department_type          String // if it is a choir or media or power and sound type of department
-    department_name          String   @unique
-    description              String //Gives extra details for the Departmental incase if it is combined with other Departments
-    finance_id               String   @unique
-    members                  Json // array of each member in the department corresponding to the DeptMember type definition
-    dues_paid_per_individual Json // it is a json structure but will enforce the Dues type definition
-    createdAt                DateTime @default(now()) // automatically set to the current date/time when the
-    modifiedAt               DateTime @updatedAt
-
-    //relationships
-    installation_id String // id of the installation the department is under
-    centrals        String[] // id of the central(s) the department is under
+  department_id            String   @id @default(cuid())
+  department_type          String
+  department_name          String   @unique
+  description              String
+  finance_id               String   @unique
+  members                  Json
+  dues_paid_per_individual Json
+  createdAt                DateTime @default(now())
+  modifiedAt               DateTime @updatedAt
+  installation_id          String
+  centrals                 String[]
 }
 
 model Centrals {
-    central_id   String @id @default(cuid())
-    central_name String @unique
-    finance_id   String @unique
-    description  String
-    departments  Json // list of departmental types associated with the central
-
-    createdAt  DateTime @default(now()) // automatically set to the current date/time when the
-    modifiedAt DateTime @updatedAt
+  central_id   String   @id @default(cuid())
+  central_name String   @unique
+  finance_id   String   @unique
+  description  String
+  departments  Json
+  createdAt    DateTime @default(now())
+  modifiedAt   DateTime @updatedAt
 }
 
 model DepartmentClass {
-    department_class_id   String   @id @default(cuid())
-    department_class_name String   @unique
-    description           String
-    createdAt             DateTime @default(now()) // automatically set to the current date/time when the
-    modifiedAt            DateTime @updatedAt
+  department_class_id   String   @id @default(cuid())
+  department_class_name String   @unique
+  description           String
+  createdAt             DateTime @default(now())
+  modifiedAt            DateTime @updatedAt
 }
 
+enum LeaderShipLevel {
+  PASTOR
+  MINISTER
+  HOD
+  ASSISTANT_HOD
+  EXECUTIVE_ASSISTANT
+  WORKER
+  MEMBER
+}
 
-
+enum Gender {
+  MALE
+  FEMALE
+}

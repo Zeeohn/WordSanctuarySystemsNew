@@ -1,4 +1,4 @@
-import { Heirarchy } from "./types/general";
+import { Gender, Heirarchy } from "./types/general";
 
 export function removeProfileId(input: string): string {
   // Regular expression to match 'profileId' followed by its value
@@ -6,12 +6,11 @@ export function removeProfileId(input: string): string {
   return input.replace(regex, "").trim(); // Remove the matched part and trim extra spaces
 }
 
-export   function extractProfileIdHelper(input: string): string | null {
+export function extractProfileIdHelper(input: string): string | null {
   const regex = /profileId\s+([a-zA-Z0-9]+)/;
   const match = input.match(regex);
-  return match ? match[1] : null;  // Returns the profileId or null if not found
+  return match ? match[1] : null; // Returns the profileId or null if not found
 }
-
 
 export function formatMemberName(
   memberName: string,
@@ -31,8 +30,6 @@ export function extractAlphanumeric(str: string) {
   // Use regular expression to match only alphanumeric characters
   return str.replace(/[^a-zA-Z0-9]/g, "");
 }
-
-
 
 export const lifeClassTopicsSelectComponentPayload = [
   {
@@ -186,5 +183,13 @@ export const leaderShipLevelSelectComponentPayload = [
   {
     name: "Member",
     value: Heirarchy.MEMBER,
+  },
+];
+
+export const genderSelectComponentPayload = [
+  { name: "Male", value: Gender.MALE },
+  {
+    name: "Female",
+    value: Gender.FEMALE,
   },
 ];

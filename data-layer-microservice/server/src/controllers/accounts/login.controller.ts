@@ -66,22 +66,54 @@ export const getLoginCredentailsController = async (req:Request, res:Response)=>
          }
       })
 
-    //   get profile_id of the user
-      const profile = await postgresClient.profiles.findUnique({
-        where: {
-            email: parsedBody.email
-        }
-    })
-
       if(loginCredentials){
-         res.status(200).json({
-            success: true,
-            data: {
-                ...loginCredentials,
-                profile_details: profile
-            },
-         })
+         // Only try to get profile if login credentials are valid
+         try {
+            const profile = await postgresClient.profiles.findUnique({
+               where: {
+                  email: parsedBody.email
+               }
+            })
 
+            // Return response with profile details if profile exists
+            res.status(200).json({
+               success: true,
+               data: {
+                  ...loginCredentials,
+                  profile_details: profile || null
+               },
+            })
+         } catch (dbError: any) {
+            // Log the error with more details
+            console.error('Failed to fetch profile:', {
+               error: dbError,
+               code: dbError.code,
+               meta: dbError.meta
+            })
+
+            // If table doesn't exist, return a more specific message
+            if (dbError.code === 'P2021') {
+               res.status(200).json({
+                  success: true,
+                  data: {
+                     ...loginCredentials,
+                     profile_details: null
+                  },
+                  message: 'Profile service is being set up. Please try again later.'
+               })
+               return
+            }
+
+            // For other database errors
+            res.status(200).json({
+               success: true,
+               data: {
+                  ...loginCredentials,
+                  profile_details: null
+               },
+               message: 'Unable to fetch profile details at the moment.'
+            })
+         }
          return
       }
 

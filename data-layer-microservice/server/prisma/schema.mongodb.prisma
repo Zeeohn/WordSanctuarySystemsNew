@@ -126,6 +126,15 @@ model AuthTokens {
     modifiedAt DateTime  @updatedAt
 }
 
+model registrationExpiry {
+    reg_id      String     @id @default(auto()) @map("_id") @mongodb.ObjectId 
+    email       String
+    accessed    Boolean    @default(false) 
+    accessed_at DateTime? 
+    createdAt   DateTime   @default(now())
+    expiresAt   DateTime   
+}
+
 model InvitationRequets {
     invite_id   String @id @default(auto()) @map("_id") @mongodb.ObjectId
     email       String

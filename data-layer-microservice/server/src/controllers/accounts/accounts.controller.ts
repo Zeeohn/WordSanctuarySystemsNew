@@ -5,6 +5,7 @@ import {
   UserAccountProfileSchemaType,
 } from "../validators/accounts/accountsValidators";
 import { ZodError } from "zod";
+import { generateJWTService } from "../../services/jwtService";
 
 export const addAccountToUserAccountProfileController = async (
   req: Request,
@@ -88,7 +89,10 @@ export const addAccountToUserAccountProfileController = async (
 
     return;
   } catch (err) {
-    console.log(`addAccountToUserAccountProfileController  encountered an error `, err);
+    console.log(
+      `addAccountToUserAccountProfileController  encountered an error `,
+      err
+    );
 
     if (err instanceof ZodError) {
       res.status(400).json({
@@ -106,5 +110,43 @@ export const addAccountToUserAccountProfileController = async (
     });
 
     return;
+  }
+};
+
+export const generateExpiringLink = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+      return;
+    }
+
+    // Create a tracking document with expiry and access logs
+    const token = await generateJWTService(email);
+
+    if (!token) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate token",
+      });
+      return;
+    }
+
+    console.log("token generated: ", token);
+
+    res.status(200).json({
+      success: true,
+      data: token,
+    });
+  } catch (err) {
+    console.log("generateExpiringLink error ", err);
+    res.status(500).json({
+      success: false,
+      message: "Operation failed",
+    });
   }
 };

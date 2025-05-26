@@ -1,47 +1,60 @@
 import { Request, Response } from "express";
 
 import { get_Data_Layer_POSTGRESS_Api_Endpoint } from "../helpers/getDataLayerAPI_endpoint";
-import { CreateIndividualProfileSchema, EmailValidatorObj, GivingNumberValidatorObj, UpdateIndividualProfileSchema, profileIdValidator } from "../validators/createIndividualProfileValidators";
+import {
+  CreateIndividualProfileSchema,
+  EmailValidatorObj,
+  GivingNumberValidatorObj,
+  UpdateIndividualProfileSchema,
+  profileIdValidator,
+} from "../validators/createIndividualProfileValidators";
 import { ZodError } from "zod";
 
-export const createIndividualProfile = async (
-  req: Request,
-  res: Response
-) => {
+export const createIndividualProfile = async (req: Request, res: Response) => {
   try {
     const parsedBody = CreateIndividualProfileSchema.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const { token, redirect } = req.query;
+    console.log("token: ", token);
+    console.log("redirect: ", redirect);
+
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
     const createProfileResponse = await fetch(
-      `${data_Layer_Base_Api_Endpoint}/profiles/individuals/create`,
+      `${data_Layer_Base_Api_Endpoint}/profiles/individuals/create${
+        token ? `?token=${token}` : ""
+      }${redirect ? `&redirect=${redirect}` : ""}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
 
+    const responseFromDatalayer = await createProfileResponse.json();
+
     if (createProfileResponse.ok) {
       res.status(201).json({
         success: true,
+        data: responseFromDatalayer,
         message: "Profile created",
       });
 
       return;
     }
 
-   const responseFromDatalayer = await createProfileResponse.json()
-
     res.status(500).json({
       success: false,
-      message: responseFromDatalayer?.message ||  "Could not send create profile. Please try again later.",
+      message:
+        responseFromDatalayer?.message ||
+        "Could not send create profile. Please try again later.",
     });
   } catch (err) {
     console.log(`createIndividualprofile controller encountered an err`, err);
@@ -65,14 +78,12 @@ export const createIndividualProfile = async (
 };
 
 //Update Individual Profile
-export const updateIndividualProfile = async (
-  req: Request,
-  res: Response
-) => {
+export const updateIndividualProfile = async (req: Request, res: Response) => {
   try {
     const parsedBody = UpdateIndividualProfileSchema.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -84,7 +95,7 @@ export const updateIndividualProfile = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
@@ -124,14 +135,12 @@ export const updateIndividualProfile = async (
 };
 
 // Get Individual Profile By ID
-export const getIndividualProfileById = async (
-  req: Request,
-  res: Response
-) => {
+export const getIndividualProfileById = async (req: Request, res: Response) => {
   try {
     const parsedBody = profileIdValidator.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -143,7 +152,7 @@ export const getIndividualProfileById = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
@@ -190,7 +199,8 @@ export const getIndividualProfileByEmail = async (
   try {
     const parsedBody = EmailValidatorObj.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -202,7 +212,7 @@ export const getIndividualProfileByEmail = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
@@ -221,7 +231,10 @@ export const getIndividualProfileByEmail = async (
       message: "Could not send get profile by email. Please try again later.",
     });
   } catch (err) {
-    console.log(`getIndividualprofileByemail controller encountered an err`, err);
+    console.log(
+      `getIndividualprofileByemail controller encountered an err`,
+      err
+    );
 
     if (err instanceof ZodError) {
       res.status(400).json({
@@ -249,7 +262,8 @@ export const getIndividualProfileByGivingNumber = async (
   try {
     const parsedBody = GivingNumberValidatorObj.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -261,7 +275,7 @@ export const getIndividualProfileByGivingNumber = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
@@ -280,7 +294,10 @@ export const getIndividualProfileByGivingNumber = async (
       message: "Could not send get profile by Number. Please try again later.",
     });
   } catch (err) {
-    console.log(`getIndividualprofileBynumber controller encountered an err`, err);
+    console.log(
+      `getIndividualprofileBynumber controller encountered an err`,
+      err
+    );
 
     if (err instanceof ZodError) {
       res.status(400).json({
@@ -301,13 +318,10 @@ export const getIndividualProfileByGivingNumber = async (
 };
 
 //Get All Individual Profile
-export const getAllIndividualsProfile = async (
-  req: Request,
-  res: Response
-) => {
+export const getAllIndividualsProfile = async (req: Request, res: Response) => {
   try {
-
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -321,7 +335,7 @@ export const getAllIndividualsProfile = async (
       }
     );
 
-    const response = await fetchProfileResponse.json()
+    const response = await fetchProfileResponse.json();
 
     if (fetchProfileResponse.ok) {
       res.status(201).json({
@@ -335,7 +349,8 @@ export const getAllIndividualsProfile = async (
     res.status(500).json({
       success: false,
       data: null,
-      message: "Could not send fetch individuals profiles. Please try again later.",
+      message:
+        "Could not send fetch individuals profiles. Please try again later.",
     });
   } catch (err) {
     console.log(`getAllIndividualsProfile controller encountered an err`, err);
@@ -351,7 +366,8 @@ export const getAllIndividualsProfile = async (
 
     res.status(500).json({
       success: false,
-      message: "Internal Server error. Could not fetch individual profiles. Please try again later.",
+      message:
+        "Internal Server error. Could not fetch individual profiles. Please try again later.",
     });
 
     return;
@@ -359,14 +375,12 @@ export const getAllIndividualsProfile = async (
 };
 
 //Delete Individual Profile
-export const deleteIndividualProfile = async (
-  req: Request,
-  res: Response
-) => {
+export const deleteIndividualProfile = async (req: Request, res: Response) => {
   try {
     const parsedBody = profileIdValidator.parse(req.body);
 
-    const data_Layer_Base_Api_Endpoint = get_Data_Layer_POSTGRESS_Api_Endpoint();
+    const data_Layer_Base_Api_Endpoint =
+      get_Data_Layer_POSTGRESS_Api_Endpoint();
 
     console.log("endpoint ", data_Layer_Base_Api_Endpoint);
 
@@ -378,7 +392,7 @@ export const deleteIndividualProfile = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...parsedBody
+          ...parsedBody,
         }),
       }
     );
@@ -416,4 +430,3 @@ export const deleteIndividualProfile = async (
     return;
   }
 };
-
