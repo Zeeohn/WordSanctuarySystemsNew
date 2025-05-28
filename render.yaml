@@ -23,4 +23,29 @@ services:
     startCommand: npm run start
     autoDeployTrigger: commit
     rootDir: data-layer-microservice/server
+
+  - type: web
+    name: ws-central-systems
+    runtime: node
+    repo: https://github.com/Zeeohn/WordSanctuarySystemsNew
+    plan: free
+    envVars:
+      - key: JWT_SIGN_SECRET
+        sync: false
+      - key: ROOT_USER_EMAIL
+        sync: false
+      - key: NODE_ENV
+        value: production
+        sync: false
+      - key: DATA_LAYER_SYSTEMS_BASE_API
+        sync: false
+      - key: DATA_LAYER_KPI_ENDPOINT
+        sync: false
+      - key: DATA_LAYER_POSTGRESS_ENDPOINT
+        sync: false
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    autoDeployTrigger: commit
+    rootDir: central-systems/backend/server
 version: "1"
