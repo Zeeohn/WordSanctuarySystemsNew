@@ -36,7 +36,6 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
-        sync: false
       - key: DATA_LAYER_SYSTEMS_BASE_API
         sync: false
       - key: DATA_LAYER_KPI_ENDPOINT
