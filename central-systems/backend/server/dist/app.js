@@ -22,13 +22,13 @@ const kpi_router_1 = __importDefault(require("./routers/kpi.router"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 4999;
 dotenv_1.default.config(); // call the dotenv package to use the env variables
-app.use(express_1.default.json()); // middleware for parsing body of requests 
+app.use(express_1.default.json()); // middleware for parsing body of requests
 app.use((0, cookie_parser_1.default)()); // allows us to read and set cookies
 // Define CORS options (optional)
 const corsOptions = {
-    origin: 'http://localhost:3000', // specify the allowed domain or use '*' to allow all
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // allowed headers
+    origin: ["http://localhost:3000", "http://localhost:3001"], // specify the allowed domain or use '*' to allow all
+    methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // allowed headers
     credentials: true, // allow cookies to be sent across domains
 };
 // Enable CORS for all routes (if you want it to be global)

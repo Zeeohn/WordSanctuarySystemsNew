@@ -16,25 +16,31 @@ const zod_1 = require("zod");
 const createIndividualProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const parsedBody = createIndividualProfileValidators_1.CreateIndividualProfileSchema.parse(req.body);
+        const { token, redirect } = req.query;
+        console.log("token: ", token);
+        console.log("redirect: ", redirect);
         const data_Layer_Base_Api_Endpoint = (0, getDataLayerAPI_endpoint_1.get_Data_Layer_POSTGRESS_Api_Endpoint)();
         console.log("endpoint ", data_Layer_Base_Api_Endpoint);
-        const createProfileResponse = yield fetch(`${data_Layer_Base_Api_Endpoint}/profiles/individuals/create`, {
+        const createProfileResponse = yield fetch(`${data_Layer_Base_Api_Endpoint}/profiles/individuals/create${token ? `?token=${token}` : ""}${redirect ? `&redirect=${redirect}` : ""}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(Object.assign({}, parsedBody)),
         });
+        const responseFromDatalayer = yield createProfileResponse.json();
         if (createProfileResponse.ok) {
             res.status(201).json({
                 success: true,
+                data: responseFromDatalayer,
                 message: "Profile created",
             });
             return;
         }
         res.status(500).json({
             success: false,
-            message: "Could not send create profile. Please try again later.",
+            message: (responseFromDatalayer === null || responseFromDatalayer === void 0 ? void 0 : responseFromDatalayer.message) ||
+                "Could not send create profile. Please try again later.",
         });
     }
     catch (err) {

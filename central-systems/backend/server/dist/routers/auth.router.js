@@ -14,5 +14,7 @@ authRouter.post("/access/request/submit", auth_controller_1.submitAccessRequestC
 authRouter.post("/access/request/process");
 authRouter.post("/invitations/request/submit", auth_controller_1.invitationRequestController);
 authRouter.post("/invitations/request/verify", auth_controller_1.verifyInvitationRequestController);
+authRouter.post("/access/request/external/login", auth_controller_1.requestLoginOtpController);
+authRouter.post("/access/request/external/verify", auth_controller_1.verifyLoginOtpController);
 //  authRouter.get("/access/requests/all", getAllAccessRequests)
 exports.default = authRouter;

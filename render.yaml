@@ -43,7 +43,7 @@ services:
       - key: DATA_LAYER_POSTGRESS_ENDPOINT
         sync: false
     region: frankfurt
-    buildCommand: npm install && npm run build
+    buildCommand: npm run build
     startCommand: npm run start
     autoDeployTrigger: commit
     rootDir: central-systems/backend/server

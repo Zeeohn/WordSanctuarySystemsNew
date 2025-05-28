@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: data-layer-microservice
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npm run prisma-generate-mongodb && npm run prisma-generate-postgresql && chmod +x ./scripts/db-migrate.sh && ./scripts/db-migrate.sh && npm run build
+    startCommand: node dist/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_CONN_URI
+        sync: false
+      - key: POSTGRES_CONN_URI
+        sync: false

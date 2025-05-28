@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const individuals_controller_1 = require("../controllers/individuals.controller");
 const individualsRouter = express_1.default.Router();
-individualsRouter.get("/fetch/:profileId", individuals_controller_1.getIndividualProfileById);
+individualsRouter.get("/fetch/individual/:profileId", individuals_controller_1.getIndividualProfileById);
 individualsRouter.post("/getbyemail", individuals_controller_1.getIndividualProfileByEmail);
 individualsRouter.get("/getbygivingnumber", individuals_controller_1.getIndividualProfileByGivingNumber);
 individualsRouter.post("/create", individuals_controller_1.createIndividualProfile);
