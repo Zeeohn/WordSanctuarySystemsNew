@@ -1,0 +1,26 @@
+# Exported from Render on 2025-05-27T10:33:36Z
+services:
+  - type: web
+    name: ws-data-layer
+    runtime: node
+    repo: https://github.com/Zeeohn/WordSanctuarySystemsNew
+    plan: free
+    envVars:
+      - key: JWT_SECRET
+        sync: false
+      - key: CENTRAL_SYSTEMS_FRONTEND_URL
+        sync: false
+      - key: ROOT_USER_PASSWORD
+        sync: false
+      - key: ROOT_USER_EMAIL
+        sync: false
+      - key: POSTGRES_CONN_URI
+        sync: false
+      - key: MONGODB_CONN_URI
+        sync: false
+    region: frankfurt
+    buildCommand: npm run deploy
+    startCommand: npm run start
+    autoDeployTrigger: commit
+    rootDir: data-layer-microservice/server
+version: "1"

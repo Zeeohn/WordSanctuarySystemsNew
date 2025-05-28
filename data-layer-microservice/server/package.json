@@ -6,11 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "pm2 start dist/app.js --name data-layer-microservice",
+    "start": "node dist/app.js",
+    "start:pm2": "pm2 start dist/app.js --name data-layer-microservice",
     "prisma-generate-mongodb": "prisma generate --schema=prisma/schema.mongodb.prisma",
     "prisma-generate-postgresql": "prisma generate --schema=prisma/schema.postgresql.prisma",
     "prisma-migrate:dev-postgresql": "prisma migrate dev --schema=prisma/schema.postgresql.prisma",
     "prisma-migrate:dev-mongodb": "prisma migrate dev --schema=prisma/schema.mongodb.prisma",
+    "prisma-deploy:postgresql": "prisma migrate deploy --schema=prisma/schema.postgresql.prisma",
+    "db-migrate": "./scripts/db-migrate.sh",
+    "deploy": "npm install && npm run prisma-generate-mongodb && npm run prisma-generate-postgresql && chmod +x ./scripts/db-migrate.sh && npm run db-migrate && npm run build",
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/app.ts"
   },
   "author": "corneliusdevs",
