@@ -169,7 +169,7 @@ export const leaderShipLevelSelectComponentPayload = [
     value: Heirarchy.HOD,
   },
   {
-    name: "Assitant HOD",
+    name: "Assistant HOD",
     value: Heirarchy.ASSISTANT_HOD,
   },
   {

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SetStateAction, Dispatch, useState } from "react";
@@ -45,9 +45,13 @@ export function IndividualOnboardingForm({
   const token = searchParams.get("token");
   const redirect = searchParams.get("redirect");
 
+  // Get email from query params
+  const emailParam = searchParams.get("email");
+
   console.log("URL Parameters in form component:");
   console.log("token from URL: ", token);
   console.log("redirect from URL: ", redirect);
+  console.log("email from URL: ", emailParam);
 
   // Log the full search params for debugging
   console.log(
@@ -61,7 +65,15 @@ export function IndividualOnboardingForm({
   const form = useForm<z.infer<typeof CreateIndividualProfileSchema>>({
     resolver: zodResolver(CreateIndividualProfileSchema),
     defaultValues: {
-      // email: "",
+      name: "",
+      surname: "",
+      email: emailParam || "",
+      phone_contact: "",
+      giving_number: "",
+      birthday: "",
+      passport: undefined, // file input
+      signature: undefined, // file input
+      // Add any other fields from your schema here with appropriate defaults
     },
   });
 
@@ -69,11 +81,10 @@ export function IndividualOnboardingForm({
     Heirarchy.MEMBER
   );
 
-  const [gender, setGender] = useState<string>(Gender.FEMALE);
-
   const [lifeclass_topic, setLifeClassTopic] = useState<string>("1");
 
   const onSubmit = async (data: any) => {
+    console.log("FORM: onSubmit called");
     console.log(
       "here are the values of individualProfile onboarding form: ",
       data
@@ -83,7 +94,6 @@ export function IndividualOnboardingForm({
         //  the fields that have a "none" value will be updated later when the profile is updated
         ...data,
         leadership_level: leadershipLevel,
-        gender: gender,
         lifeclass_topic: Number(lifeclass_topic),
         lifeclass_teacher_profile_id: "none",
         mentor_profile_id: "none",
@@ -93,8 +103,11 @@ export function IndividualOnboardingForm({
       },
       { token, redirect } // Pass token and redirect as query params if they exist
     );
-    isMutatingDbResourceHandler(true);
+    // Do not call isMutatingDbResourceHandler here for effect trigger
   };
+
+  // Log form errors for debugging
+  console.log("FORM ERRORS:", form.formState.errors);
 
   return (
     <div
@@ -140,7 +153,12 @@ export function IndividualOnboardingForm({
                 <FormItem className="mb-2">
                   <FormLabel>Email </FormLabel>
                   <FormControl>
-                    <Input placeholder="enter your email here" {...field} />
+                    <Input
+                      placeholder="enter your email here"
+                      {...field}
+                      value={field.value || ""}
+                      disabled={!!emailParam}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,10 +172,10 @@ export function IndividualOnboardingForm({
             render={({ field }) => {
               return (
                 <FormItem className="mb-2">
-                  <FormLabel>Phone </FormLabel>
+                  <FormLabel>Telegram Contact </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="enter your phone number here"
+                      placeholder="enter a valid/reachable telegram contact here"
                       {...field}
                     />
                   </FormControl>
@@ -167,16 +185,22 @@ export function IndividualOnboardingForm({
             }}
           />
 
-          {/* select gender */}
-          <div className="my-4">
-            <div className="text-sm">Gender</div>
-            <SelectComponent
-              placeholder={"Select gender"}
-              label="Gender"
-              onValueChange={setGender}
-              itemsToSelect={genderSelectComponentPayload}
-            />
-          </div>
+          {/* GENDER DROPDOWN - use Controller to connect to form */}
+          <Controller
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <div className="my-4">
+                <div className="text-sm">Gender</div>
+                <SelectComponent
+                  placeholder={"Select gender"}
+                  label="Gender"
+                  onValueChange={field.onChange}
+                  itemsToSelect={genderSelectComponentPayload}
+                />
+              </div>
+            )}
+          />
 
           <FormField
             control={form.control}

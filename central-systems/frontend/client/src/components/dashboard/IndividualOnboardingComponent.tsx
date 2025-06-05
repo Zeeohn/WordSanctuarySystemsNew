@@ -32,8 +32,10 @@ export default function OnboardIndividualComponent({
   >(null);
 
   useEffect(() => {
+    console.log("PARENT: useEffect triggered, formDetails:", formDetails);
     if (formDetails) {
       const saveIndividualProfile = async () => {
+        console.log("PARENT: saveIndividualProfile running");
         // create a new form
         const passportFormData = new FormData();
         const { passport, signature, name, surname, gender } = formDetails;
@@ -283,50 +285,27 @@ export default function OnboardIndividualComponent({
                     token: newFormDetails.queryParams.token,
                   };
 
-                  // Create a form to submit data to external site
-                  const form = document.createElement("form");
-                  form.method = "POST";
-                  form.action = newFormDetails.queryParams.redirect;
-                  form.target = "_self"; // Ensure it redirects the current page
-                  form.enctype = "application/x-www-form-urlencoded";
-                  form.setAttribute("novalidate", "true");
-
-                  console.log(
-                    "Redirecting to:",
-                    newFormDetails.queryParams.redirect
-                  );
-                  console.log("Sending profile data:", profileData);
-
-                  // Add profile data as hidden fields
-                  Object.entries(profileData).forEach(([key, value]) => {
-                    if (value !== undefined && value !== null) {
-                      const input = document.createElement("input");
-                      input.type = "hidden";
-                      input.name = key;
-                      input.value =
-                        typeof value === "string"
-                          ? value
-                          : JSON.stringify(value);
-                      form.appendChild(input);
-                    }
-                  });
-
-                  // Append form to body and submit
-                  document.body.appendChild(form);
-
-                  // Add a small delay before submitting to ensure the form is fully created
-                  setTimeout(() => {
-                    console.log("Submitting form now");
-                    form.submit();
-                    toast({
-                      title: "Redirecting",
-                      description: (
-                        <div className="mt-2 w-full flex justify-center items-center rounded-md">
-                          <span>You are being redirected...</span>
-                        </div>
-                      ),
+                  // Robustly get the external site base URL
+                  const centralTrainingBase = (
+                    process.env.NEXT_PUBLIC_CENTRAL_TRAINING || ""
+                  )
+                    .trim()
+                    .replace(/^"+|"+$/g, "")
+                    .replace(/\/$/, "");
+                  await fetch(`${centralTrainingBase}/api/data-receiver`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    credentials: "include", // Optional: use if setting cookies
+                    body: JSON.stringify(profileData),
+                  })
+                    .then(() => {
+                      window.location.href = `${centralTrainingBase}/data-receiver`;
+                    })
+                    .catch((err) => {
+                      console.error("Error redirecting:", err);
                     });
-                  }, 100);
                 }
 
                 // store the passport url in a state
@@ -369,7 +348,7 @@ export default function OnboardIndividualComponent({
 
       saveIndividualProfile();
     }
-  }, [formDetails, hasUserFilledForm]);
+  }, [formDetails]);
 
   return (
     <div>
@@ -386,8 +365,7 @@ export default function OnboardIndividualComponent({
           isMutatingDbResource={hasUserFilledForm}
           isMutatingDbResourceHandler={sethasUserFilledForm}
           updateIndividualDataHandler={(formData, queryParams) => {
-            console.log("Received form data from form:", formData);
-            console.log("Received query params from form:", queryParams);
+            console.log("PARENT: setFormDetails called", formData, queryParams);
             setFormDetails({
               ...formData,
               queryParams,

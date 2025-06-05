@@ -529,16 +529,18 @@ export const verifyLoginOtpController = async (req: Request, res: Response) => {
           body: JSON.stringify({ email: parsedBody.email }),
         }
       );
-      let profileData = null;
+      let profileData;
       if (profileRes.ok) {
         profileData = await profileRes.json();
       }
-      if (profileData && profileData.data) {
+
+      console.log("Profile data: ", profileData);
+      if (profileData && profileData.profile) {
         // Profile exists, registration complete
         res.status(200).json({
           verified: true,
           registration_complete: true,
-          profile: profileData.data,
+          profile: profileData.profile,
         });
         return;
       } else {
@@ -565,10 +567,6 @@ export const verifyLoginOtpController = async (req: Request, res: Response) => {
         }
 
         const expiry = await expiryRes.json();
-
-        console.log("Expiry response: ", expiry);
-
-        console.log("Expiry Token: ", expiry.data);
 
         if (expiry?.data) {
           res.status(200).json({

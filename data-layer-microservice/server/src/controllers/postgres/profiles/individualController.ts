@@ -302,6 +302,8 @@ export const getIndividualProfileByEmail = async (
       },
     });
 
+    console.log("Profile from data-layer: ", profile);
+
     if (profile) {
       res.status(200).json({ profile });
     } else {
@@ -486,3 +488,25 @@ export const deleteIndividualProfileById = async (
     }
   }
 };
+
+// export const deleteAllIndividualProfiles = async () =>
+//   // req: Request,
+//   // res: Response
+//   {
+//     try {
+//       const result = await postgresClient.profiles.deleteMany();
+//       console.log(`Deleted ${result.count} profiles successfully`);
+//       // res.status(200).json({
+//       //   message: `Deleted ${result.count} profiles successfully`,
+//       //   deletedCount: result.count,
+//       // });
+//     } catch (err) {
+//       console.error("Error deleting all profiles:", err);
+//       // res.status(500).json({
+//       //   message: "Failed to delete all profiles",
+//       //   errorMessage: "Internal server error",
+//       // });
+//     }
+//   };
+
+// deleteAllIndividualProfiles();
