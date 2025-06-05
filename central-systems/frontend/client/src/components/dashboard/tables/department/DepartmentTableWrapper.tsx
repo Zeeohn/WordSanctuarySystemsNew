@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TIndividualProfile } from "@/components/forms/individuals/IndividualOnboardingFormSchema";
+import IndividualsTable from "@/components/dashboard/tables/IndividualsTable";
 
 const DepartmentMembersListWrapper = () => {
   const [loading, setLoading] = useState<boolean>(true);

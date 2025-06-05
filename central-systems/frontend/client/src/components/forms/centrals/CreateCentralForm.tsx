@@ -37,7 +37,7 @@ export function CreateCentralForm({
 }: CreateCentralFormProps) {
 
   const {selectedDepartments} = useAddDepartmentToCentralStore(state => state.addDepartmentToCentralState)
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
   const form = useForm<z.infer<typeof CreateCentralProfileSchema>>({
     resolver: zodResolver(CreateCentralProfileSchema),

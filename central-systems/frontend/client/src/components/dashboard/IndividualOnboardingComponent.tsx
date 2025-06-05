@@ -38,7 +38,7 @@ export default function OnboardIndividualComponent({
         console.log("PARENT: saveIndividualProfile running");
         // create a new form
         const passportFormData = new FormData();
-        const { passport, signature, name, surname, gender } = formDetails;
+        const { passport, signature, name, surname } = formDetails;
 
         // append image details to form data
         passportFormData.append("file", passport);

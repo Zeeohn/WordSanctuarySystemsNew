@@ -1,5 +1,5 @@
 import AdminDashboardHomeContent from "./AdminDashboardHomeContent";
-import DashboardNavbar from "./DashboardNavbar";
+// import DashboardNavbar from "./DashboardNavbar";
 import DashboardWelcomeComponent from "./DashboardWelcomeComponent";
 
 const OnBoardHomeComponent = () => {

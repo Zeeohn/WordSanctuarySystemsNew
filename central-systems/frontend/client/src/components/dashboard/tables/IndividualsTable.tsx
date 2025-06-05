@@ -15,12 +15,12 @@ const handleView = (request) => {
 };
 
 const IndividualsTable: React.FC<IndividualsTableProps> = ({ individuals }) => {
-  const TrendIcon = ({ trend }: { trend: "up" | "down" }) => {
-    if (trend === "up") {
-      return <FaArrowTrendUp className="w-4 h-4 text-green-500" />;
-    }
-    return <FaArrowTrendDown className="w-4 h-4 text-red-500" />;
-  };
+  // const TrendIcon = ({ trend }: { trend: "up" | "down" }) => {
+  //   if (trend === "up") {
+  //     return <FaArrowTrendUp className="w-4 h-4 text-green-500" />;
+  //   }
+  //   return <FaArrowTrendDown className="w-4 h-4 text-red-500" />;
+  // };
 
   return (
     <div className="max-w-xl mx-auto p-">

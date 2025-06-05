@@ -20,7 +20,7 @@ import { CreateIndividualProfileSchema } from "./IndividualOnboardingFormSchema"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SelectComponent from "@/components/SelectComponent";
-import { Gender, Heirarchy } from "@/types/general";
+import { Heirarchy } from "@/types/general";
 import {
   genderSelectComponentPayload,
   leaderShipLevelSelectComponentPayload,
@@ -38,7 +38,7 @@ interface IndividualOnboardingFormProps {
 
 export function IndividualOnboardingForm({
   isMutatingDbResource,
-  isMutatingDbResourceHandler,
+  // isMutatingDbResourceHandler,
   updateIndividualDataHandler,
 }: IndividualOnboardingFormProps) {
   const searchParams = useSearchParams();
