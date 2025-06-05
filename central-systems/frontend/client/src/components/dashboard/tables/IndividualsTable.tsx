@@ -1,7 +1,7 @@
 "use strict";
 import React from "react";
-import { FaArrowTrendDown } from "react-icons/fa6";
-import { FaArrowTrendUp } from "react-icons/fa6";
+// import { FaArrowTrendDown } from "react-icons/fa6";
+// import { FaArrowTrendUp } from "react-icons/fa6";
 import { navigate } from "@/app/actions";
 import { extractIndividualNameAndLeadership } from "@/helpers/stateHandlers";
 import { TIndividualProfile } from "@/components/forms/individuals/IndividualOnboardingFormSchema";
@@ -53,7 +53,9 @@ const IndividualsTable: React.FC<IndividualsTableProps> = ({ individuals }) => {
               className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <td className="py-3 px-4 text-gray-900">{index + 1}</td>
-              <td className="py-3 px-4 text-gray-900">{extractIndividualNameAndLeadership(individual)}</td>
+              <td className="py-3 px-4 text-gray-900">
+                {extractIndividualNameAndLeadership(individual)}
+              </td>
               <td className="py-3 px-4 text-gray-600">{individual.email}</td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">

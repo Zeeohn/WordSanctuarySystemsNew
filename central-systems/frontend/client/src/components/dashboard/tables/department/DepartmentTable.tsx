@@ -1,7 +1,7 @@
 "use strict";
 import React from "react";
-import { FaArrowTrendDown } from "react-icons/fa6";
-import { FaArrowTrendUp } from "react-icons/fa6";
+// import { FaArrowTrendDown } from "react-icons/fa6";
+// import { FaArrowTrendUp } from "react-icons/fa6";
 import { navigate } from "@/app/actions";
 import { extractIndividualNameAndLeadership } from "@/helpers/stateHandlers";
 import { DepartmentalProfile } from "@/types/department";
@@ -14,7 +14,9 @@ const handleView = (request) => {
   navigate(`/dashboard/onboard/department/department-details?id=${request.id}`);
 };
 
-const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({ department }) => {
+const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
+  department,
+}) => {
   // const TrendIcon = ({ trend }: { trend: "up" | "down" }) => {
   //   if (trend === "up") {
   //     return <FaArrowTrendUp className="w-4 h-4 text-green-500" />;
@@ -52,7 +54,9 @@ const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({ department })
               className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <td className="py-3 px-4 text-gray-900">{index + 1}</td>
-              <td className="py-3 px-4 text-gray-900">{extractIndividualNameAndLeadership(individual)}</td>
+              <td className="py-3 px-4 text-gray-900">
+                {extractIndividualNameAndLeadership(individual)}
+              </td>
               <td className="py-3 px-4 text-gray-600">{individual.email}</td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">
