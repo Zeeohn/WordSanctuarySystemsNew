@@ -1,29 +1,21 @@
-"use strict";
 import React from "react";
-// import { FaArrowTrendDown } from "react-icons/fa6";
-// import { FaArrowTrendUp } from "react-icons/fa6";
 import { navigate } from "@/app/actions";
 import { extractIndividualNameAndLeadership } from "@/helpers/stateHandlers";
-import { DepartmentalProfile } from "@/types/department";
+import { TIndividualProfile } from "@/components/forms/individuals/IndividualOnboardingFormSchema";
 
 interface DepartmentMembersTableProps {
-  department: DepartmentalProfile[];
+  department: TIndividualProfile[];
 }
 
-const handleView = (request) => {
-  navigate(`/dashboard/onboard/department/department-details?id=${request.id}`);
+const handleView = (request: TIndividualProfile) => {
+  navigate(
+    `/dashboard/onboard/department/department-details?id=${request.profile_id}`
+  );
 };
 
-const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
+const DepartmentTable: React.FC<DepartmentMembersTableProps> = ({
   department,
 }) => {
-  // const TrendIcon = ({ trend }: { trend: "up" | "down" }) => {
-  //   if (trend === "up") {
-  //     return <FaArrowTrendUp className="w-4 h-4 text-green-500" />;
-  //   }
-  //   return <FaArrowTrendDown className="w-4 h-4 text-red-500" />;
-  // };
-
   return (
     <div className="max-w-xl mx-auto p-">
       <table className="w-full border-collapse bg-white rounded-lg overflow-hidden">
@@ -36,7 +28,7 @@ const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
               Name
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Installation
+              Email
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700">
               Life Class
@@ -50,7 +42,7 @@ const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
         <tbody>
           {department.map((member, index) => (
             <tr
-              key={member?.name + index}
+              key={member?.profile_id + index}
               className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <td className="py-3 px-4 text-gray-900">{index + 1}</td>
@@ -82,4 +74,4 @@ const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
   );
 };
 
-export default IndividualsTable;
+export default DepartmentTable;
