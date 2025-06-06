@@ -17,18 +17,14 @@ app.use(express.json()); // middleware for parsing body of requests
 
 app.use(cookiesParser()); // allows us to read and set cookies
 
-// Define CORS options (optional)
+// Define CORS options (fixed)
 const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://ws-central-frontend.vercel.app/",
-    "https://ws-central-training.vercel.app/",
-  ], // specify the allowed domain or use '*' to allow all
-  accessControlAllowOrigin: [
-    "https://ws-central-frontend.vercel.app/",
+    "https://ws-central-frontend.vercel.app",
     "https://ws-central-training.vercel.app",
-  ], // allow all origins
+  ], // specify the allowed domains
   methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // allowed headers
   credentials: true, // allow cookies to be sent across domains
