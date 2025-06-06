@@ -50,26 +50,26 @@ const IndividualsTable: React.FC<DepartmentMembersTableProps> = ({
         <tbody>
           {department.map((member, index) => (
             <tr
-              key={individual.name + index}
+              key={member?.name + index}
               className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <td className="py-3 px-4 text-gray-900">{index + 1}</td>
               <td className="py-3 px-4 text-gray-900">
-                {extractIndividualNameAndLeadership(individual)}
+                {extractIndividualNameAndLeadership(member)}
               </td>
-              <td className="py-3 px-4 text-gray-600">{individual.email}</td>
+              <td className="py-3 px-4 text-gray-600">{member.email}</td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-900">
-                    {individual.lifeclass_topic}
+                    {member.lifeclass_topic}
                   </span>
                 </div>
               </td>
               <td className="py-3 px-3">
                 <button
                   className="px-3 py-1 text-sm text-white bg-[#3A2D4A] rounded-full transition-colors"
-                  aria-label={`View ${individual.name} department details`}
-                  onClick={() => handleView(individual)}
+                  aria-label={`View ${member.name} department details`}
+                  onClick={() => handleView(member)}
                 >
                   view
                 </button>
