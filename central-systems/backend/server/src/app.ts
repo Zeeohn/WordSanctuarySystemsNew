@@ -5,6 +5,7 @@ import cors from "cors";
 import profilesRouter from "./routers/profiles.router";
 import cookiesParser from "cookie-parser";
 import kpiRouter from "./routers/kpi.router";
+import { access } from "fs";
 
 const app = express();
 
@@ -24,6 +25,10 @@ const corsOptions = {
     "https://ws-central-frontend.vercel.app/",
     "https://ws-central-training.vercel.app/",
   ], // specify the allowed domain or use '*' to allow all
+  accessControlAllowOrigin: [
+    "https://ws-central-frontend.vercel.app/",
+    "https://ws-central-training.vercel.app",
+  ], // allow all origins
   methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // allowed headers
   credentials: true, // allow cookies to be sent across domains
