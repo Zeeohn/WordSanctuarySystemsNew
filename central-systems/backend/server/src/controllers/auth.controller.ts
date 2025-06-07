@@ -460,16 +460,27 @@ export const requestLoginOtpController = async (
     console.log("email: ", email);
 
     let response;
+    let responseText;
     try {
-      response = await loginRequestRes.json();
-    } catch (jsonErr) {
-      // If not JSON, log the text for debugging
-      const text = await loginRequestRes.text();
-      console.error("Non-JSON response from data layer:", text);
+      responseText = await loginRequestRes.text();
+      try {
+        response = JSON.parse(responseText);
+      } catch (jsonErr) {
+        // Not JSON, log the text for debugging
+        console.error("Non-JSON response from data layer:", responseText);
+        res.status(500).json({
+          success: false,
+          message: "Data layer returned non-JSON response.",
+          error: responseText,
+        });
+        return;
+      }
+    } catch (err: any) {
+      // If even reading as text fails
       res.status(500).json({
         success: false,
-        message: "Data layer returned non-JSON response.",
-        error: text,
+        message: "Failed to read response from data layer.",
+        error: err.message,
       });
       return;
     }
