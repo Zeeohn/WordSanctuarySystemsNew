@@ -443,6 +443,8 @@ export const requestLoginOtpController = async (
     const { email } = LoginRequestValidator.parse(req.body);
     const data_Layer_Base_Api_Endpoint = get_Data_Layer_Base_Api_Endpoint();
 
+    console.log("data layer endpoint: ", data_Layer_Base_Api_Endpoint);
+
     // Call data layer to send login OTP/email
     const loginRequestRes = await fetch(
       `${data_Layer_Base_Api_Endpoint}/accounts/auth/request/login`,
@@ -455,7 +457,22 @@ export const requestLoginOtpController = async (
       }
     );
 
-    const response = await loginRequestRes.json();
+    console.log("email: ", email);
+
+    let response;
+    try {
+      response = await loginRequestRes.json();
+    } catch (jsonErr) {
+      // If not JSON, log the text for debugging
+      const text = await loginRequestRes.text();
+      console.error("Non-JSON response from data layer:", text);
+      res.status(500).json({
+        success: false,
+        message: "Data layer returned non-JSON response.",
+        error: text,
+      });
+      return;
+    }
 
     if (response?.success) {
       res.status(201).json({
