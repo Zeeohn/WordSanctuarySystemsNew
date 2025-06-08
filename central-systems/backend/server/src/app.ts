@@ -34,12 +34,24 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("hello, central-systems server running");
+  res.status(200).send("hello, central-systems server running");
 });
 
 app.use("/cms/api/auth", authRouter);
 app.use("/cms/api/profiles", profilesRouter);
 app.use("/cms/api/departments", kpiRouter);
+
+function keepAlive() {
+  const url = process.env.CENTRAL_SYSTEMS_BACKEND_URL + "/";
+  setInterval(() => {
+    fetch(url)
+      .then(() => console.log("Ping successful"))
+      .catch((err) => console.error("Ping failed:", err));
+  }, 13 * 60 * 1000); // Every 13 minutes (Render times out after 15 min of inactivity)
+}
+
+// Call this function when the app starts
+keepAlive();
 
 // Graceful shutdown - Disconnect Prisma Clients when the server shuts down
 process.on("SIGINT", async () => {
