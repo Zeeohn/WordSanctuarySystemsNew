@@ -6,6 +6,7 @@ import profilesRouter from "./routers/profiles.router";
 import cookiesParser from "cookie-parser";
 import kpiRouter from "./routers/kpi.router";
 import { access } from "fs";
+import individualsRouter from "./routers/individuals.router";
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/cms/api/auth", authRouter);
 app.use("/cms/api/profiles", profilesRouter);
 app.use("/cms/api/departments", kpiRouter);
+app.use("/cms/api/individuals", individualsRouter);
 
 function keepAlive() {
   const url = process.env.CENTRAL_SYSTEMS_BACKEND_URL + "/";

@@ -292,20 +292,9 @@ export default function OnboardIndividualComponent({
                     .trim()
                     .replace(/^"+|"+$/g, "")
                     .replace(/\/$/, "");
-                  await fetch(`${centralTrainingBase}/api/data-receiver`, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    credentials: "include", // Optional: use if setting cookies
-                    body: JSON.stringify(profileData),
-                  })
-                    .then(() => {
-                      window.location.href = `${centralTrainingBase}/data-receiver`;
-                    })
-                    .catch((err) => {
-                      console.error("Error redirecting:", err);
-                    });
+                  window.location.href = `${centralTrainingBase}/data-receiver?email=${encodeURIComponent(
+                    profileData.email
+                  )}&id=${encodeURIComponent(profileData.profileId)}`;
                 }
 
                 // store the passport url in a state

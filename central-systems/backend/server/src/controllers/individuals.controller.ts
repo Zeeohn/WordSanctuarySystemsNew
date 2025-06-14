@@ -218,9 +218,13 @@ export const getIndividualProfileByEmail = async (
     );
 
     if (getProfileByEmailResponse.ok) {
+      const profileData = await getProfileByEmailResponse.json();
+      console.log("Profile Data: ", profileData);
+
       res.status(201).json({
         success: true,
         message: "Profile retrieved",
+        data: profileData,
       });
 
       return;
