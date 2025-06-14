@@ -13,7 +13,7 @@ const individualsRouter = express.Router();
 
 individualsRouter.get("/fetch/individual/:profileId", getIndividualProfileById);
 
-individualsRouter.get("/getbyemail", getIndividualProfileByEmail);
+individualsRouter.post("/getbyemail", getIndividualProfileByEmail);
 
 individualsRouter.get("/getbygivingnumber", getIndividualProfileByGivingNumber);
 
