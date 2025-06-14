@@ -1,31 +1,28 @@
-import express from 'express'
-import { createIndividualProfile, 
-    deleteIndividualProfile, 
-    getAllIndividualsProfile, 
-    getIndividualProfileByEmail, 
-    getIndividualProfileByGivingNumber, 
-    getIndividualProfileById,
-    updateIndividualProfile
-} from '../controllers/individuals.controller'
+import express from "express";
+import {
+  createIndividualProfile,
+  deleteIndividualProfile,
+  getAllIndividualsProfile,
+  getIndividualProfileByEmail,
+  getIndividualProfileByGivingNumber,
+  getIndividualProfileById,
+  updateIndividualProfile,
+} from "../controllers/individuals.controller";
 
+const individualsRouter = express.Router();
 
+individualsRouter.get("/fetch/individual/:profileId", getIndividualProfileById);
 
- const individualsRouter = express.Router()
+individualsRouter.get("/getbyemail", getIndividualProfileByEmail);
 
- individualsRouter.get("/fetch/individual/:profileId", getIndividualProfileById)
+individualsRouter.get("/getbygivingnumber", getIndividualProfileByGivingNumber);
 
- individualsRouter.post("/getbyemail", getIndividualProfileByEmail)
+individualsRouter.post("/create", createIndividualProfile);
 
- individualsRouter.get("/getbygivingnumber", getIndividualProfileByGivingNumber)
+individualsRouter.get("/fetch/all", getAllIndividualsProfile);
 
- individualsRouter.post("/create", createIndividualProfile)
+individualsRouter.get("/update", updateIndividualProfile);
 
- individualsRouter.get("/fetch/all", getAllIndividualsProfile)
+individualsRouter.get("/delete", deleteIndividualProfile);
 
- individualsRouter.get("/update", updateIndividualProfile)
-
- individualsRouter.get("/delete", deleteIndividualProfile)
-
-
-
-export default individualsRouter 
+export default individualsRouter;
