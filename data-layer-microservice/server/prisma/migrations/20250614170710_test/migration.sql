@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "LeaderShipLevel" AS ENUM ('PASTOR', 'MINISTER', 'HOD', 'ASSISTANT_HOD', 'EXECUTIVE_ASSISTANT', 'WORKER', 'MEMBER');
 
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
+
 -- CreateTable
 CREATE TABLE "UserPostgres" (
     "id" SERIAL NOT NULL,
@@ -16,6 +19,7 @@ CREATE TABLE "Profiles" (
     "name" TEXT NOT NULL,
     "surname" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "gender" "Gender" NOT NULL,
     "giving_number" TEXT NOT NULL,
     "leadership_level" "LeaderShipLevel" NOT NULL,
     "lifeclass_topic" INTEGER NOT NULL,
@@ -30,6 +34,7 @@ CREATE TABLE "Profiles" (
     "installation_id" TEXT NOT NULL,
     "departments" TEXT[],
     "centrals" TEXT[],
+    "registered_from" TEXT,
 
     CONSTRAINT "Profiles_pkey" PRIMARY KEY ("profile_id")
 );
