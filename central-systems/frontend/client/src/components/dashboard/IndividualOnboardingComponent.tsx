@@ -297,6 +297,8 @@ export default function OnboardIndividualComponent({
                   )}&id=${encodeURIComponent(profileData.profileId)}`;
                 }
 
+                return;
+
                 // store the passport url in a state
 
                 // upload the signature after that
