@@ -8,9 +8,9 @@ import kpiRouter from "./routers/kpi.router";
 
 const app = express();
 
-const PORT = process.env.PORT || 4999;
 
 dotenv.config() // call the dotenv package to use the env variables
+const PORT = process.env.PORT || 4999;
 
 app.use(express.json()) // middleware for parsing body of requests 
 
