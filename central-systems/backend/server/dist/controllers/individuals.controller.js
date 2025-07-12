@@ -32,9 +32,10 @@ const createIndividualProfile = (req, res) => __awaiter(void 0, void 0, void 0, 
             });
             return;
         }
+        const responseFromDatalayer = yield createProfileResponse.json();
         res.status(500).json({
             success: false,
-            message: "Could not send create profile. Please try again later.",
+            message: (responseFromDatalayer === null || responseFromDatalayer === void 0 ? void 0 : responseFromDatalayer.message) || "Could not send create profile. Please try again later.",
         });
     }
     catch (err) {
