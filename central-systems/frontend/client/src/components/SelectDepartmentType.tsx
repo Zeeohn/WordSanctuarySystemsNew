@@ -1,4 +1,4 @@
-"use state";
+"use client";
 import { useEffect, useState } from "react";
 import { extractDeptTypeSelectOptions } from "@/helpers/stateHandlers";
 import { MultiSelectSearchComponent } from "./MultiSelectSearchComponent";

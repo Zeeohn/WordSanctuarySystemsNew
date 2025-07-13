@@ -9,7 +9,7 @@ export interface IndividualProfile  {
     lifeclass_topic: number
     lifeclass_teacher_profile_id: string
     mentor_profile_id: string
-    installation_id: String;
+    installation_id: string;
     signature: string
     passport: string
     birthday: string

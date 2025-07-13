@@ -7,7 +7,7 @@ export interface DepartmentalProfile {
     department_type: string;
     members: DeptMember[];
     dues_paid_per_individual: Dues[];
-    installation_id: String;
+    installation_id: string;
     createdAt: string;
     modifiedAt: string;
   }

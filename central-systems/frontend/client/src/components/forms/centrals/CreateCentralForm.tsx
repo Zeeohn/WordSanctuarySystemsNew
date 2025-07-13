@@ -1,3 +1,4 @@
+"use client"
 import {
   Form,
   FormControl,
@@ -11,7 +12,7 @@ import { z, ZodError } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { SetStateAction, Dispatch, useState } from "react";
+import { SetStateAction, Dispatch } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/Input";
@@ -37,7 +38,7 @@ export function CreateCentralForm({
 }: CreateCentralFormProps) {
 
   const {selectedDepartments} = useAddDepartmentToCentralStore(state => state.addDepartmentToCentralState)
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
   const form = useForm<z.infer<typeof CreateCentralProfileSchema>>({
     resolver: zodResolver(CreateCentralProfileSchema),
