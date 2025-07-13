@@ -18,7 +18,7 @@ app.use(cookiesParser()); // allows us to read and set cookies
 
 // Define CORS options (optional)
 const corsOptions = {
-  origin: 'https://central-systems.wordsanctuaryglobal.com', // specify the allowed domain or use '*' to allow all
+  origin: ['https://central-systems.wordsanctuaryglobal.com', 'https://training.wordsanctuaryglobal.com'], // specify the allowed domain or use '*' to allow all
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // allowed methods
   allowedHeaders: ['Content-Type', 'Authorization'], // allowed headers
   credentials: true, // allow cookies to be sent across domains
