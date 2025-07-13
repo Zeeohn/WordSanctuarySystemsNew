@@ -8,7 +8,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const fallBackSecret = "fallback_random_secret_277253*&62-=6^%#@!(##^^$(@)+@)@jdjdhjJJJ";
 function signJWT(payload, expiry) {
     //    example usage expiry in "1h"
-    const secret = process.env.JWT_SIGN_SECRET;
+    const secret = process.env.JWT_SIGN_SECRET || fallBackSecret;
     if (secret) {
         return jsonwebtoken_1.default.sign(payload, secret, {
             expiresIn: expiry

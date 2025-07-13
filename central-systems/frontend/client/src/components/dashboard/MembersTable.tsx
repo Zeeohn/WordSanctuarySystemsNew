@@ -1,3 +1,4 @@
+"use client"
 import { Member } from '@/types/general';
 import React from 'react'
 

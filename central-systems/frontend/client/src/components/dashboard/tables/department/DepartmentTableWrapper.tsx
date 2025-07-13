@@ -1,15 +1,13 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { TIndividualProfile } from "@/components/forms/individuals/IndividualOnboardingFormSchema";
-import IndividualsTable from "@/components/dashboard/tables/IndividualsTable";
+// import { TIndividualProfile } from "@/components/forms/individuals/IndividualOnboardingFormSchema";
 
 const DepartmentMembersListWrapper = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [fetchedIndividuals, setFetchedIndividuals] = useState<
-    TIndividualProfile[]
-  >([]);
+  // const [fetchedIndividuals, setFetchedIndividuals] = useState<
+  //   TIndividualProfile[]
+  // >([]);
   useEffect(() => {
     const fetchAllIndividuals = async () => {
       const central_systems_base_api =
@@ -35,7 +33,7 @@ const DepartmentMembersListWrapper = () => {
             allIndividualsResponse.data?.allProfiles
           ) {
             // add the individuals data to the store
-            setFetchedIndividuals(allIndividualsResponse.data.allProfiles);
+            // setFetchedIndividuals(allIndividualsResponse.data.allProfiles);
           }
         })
         .catch((fetchError) => {
@@ -59,7 +57,8 @@ const DepartmentMembersListWrapper = () => {
           <LoadingSpinner />
         </div>
       ) : (
-        <IndividualsTable individuals={fetchedIndividuals} />
+        // <IndividualsTable individuals={fetchedIndividuals} />
+        <></>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-"use strict";
+"use client";
 import React from "react";
 // import { FaArrowTrendDown } from "react-icons/fa6";
 // import { FaArrowTrendUp } from "react-icons/fa6";

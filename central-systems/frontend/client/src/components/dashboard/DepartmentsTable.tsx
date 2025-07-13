@@ -1,4 +1,4 @@
-"use strict";
+"use client";
 import React from "react";
 // import { departments } from "./mock-data/departments";
 import { FaArrowTrendDown } from "react-icons/fa6";

@@ -10,9 +10,8 @@ import individualsRouter from "./routers/individuals.router";
 
 const app = express();
 
-const PORT = process.env.PORT || 4999;
-
 dotenv.config(); // call the dotenv package to use the env variables
+const PORT = process.env.PORT || 4999;
 
 app.use(express.json()); // middleware for parsing body of requests
 
@@ -21,11 +20,9 @@ app.use(cookiesParser()); // allows us to read and set cookies
 // Define CORS options (fixed)
 const corsOptions = {
   origin: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://ws-central-frontend.vercel.app",
-    "https://ws-central-training.vercel.app",
-  ], // specify the allowed domains
+    "https://central-systems.wordsanctuaryglobal.com",
+    "https://training.wordsanctuaryglobal.com",
+  ], // specify the allowed domain or use '*' to allow all
   methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // allowed headers
   credentials: true, // allow cookies to be sent across domains

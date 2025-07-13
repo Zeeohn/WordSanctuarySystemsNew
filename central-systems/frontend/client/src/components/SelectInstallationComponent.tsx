@@ -1,4 +1,4 @@
-"use state";
+"use client";
 import { useEffect, useState } from "react";
 import { useAddMemberStore } from "@/providers/AddMembersStoreProvider";
 import { TCreateInstallationProfile } from "./forms/installations/InstallationOnBoardingFormSchema";
